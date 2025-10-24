@@ -33,6 +33,8 @@ class reproductorRaw (object):
         self.waveform = self.get_available_waveforms()[0]
 
         pygame.mixer.init(self.f_s, -16, channels = 1,buffer=1024, allowedchanges=pygame.AUDIO_ALLOW_FREQUENCY_CHANGE)
+        # Changes to bisound
+        #pygame.mixer.init(22050, -16, channels = 2, buffer=4095, allowedchanges=pygame.AUDIO_ALLOW_FREQUENCY_CHANGE | pygame.AUDIO_ALLOW_CHANNELS_CHANGE)
 
         self._last_freq = 0
         self._last_time = 0
@@ -239,6 +241,22 @@ class reproductorRaw (object):
         self.sound = pygame.mixer.Sound(f.astype('int16'))
         self.sound.play()
 
+    def pitch_bisound (self, value, vol_left=1, vol_right=1):
+        if self.logscale:
+            value = np.log10(100*value+1)/2 #This is to achieve reasoable values
+            print(value)
+        if self.mapping == 'frequency':
+            freq = self.max_freq*value+self.min_freq
+            vol = self.volume
+        else:
+            vol = self.max_volume*value+self.min_volume
+            freq = self.fixed_freq
+        self.env = self._adsr_envelope()
+        f = self.env*vol*2**14*self.generate_waveform(freq)
+        self.sound = pygame.mixer.Sound(f.astype('int16'))
+        channel = self.sound.play()
+        channel.set_volume(vol_left,vol_right)
+
 
 #Esta clase es la que se comunica con la clase principal.
 class simpleSound(object):
@@ -253,6 +271,20 @@ class simpleSound(object):
             if not (x == -1):
                 #Aquí se llama al método que genera y envía la nota a fluidsynth
                 self.reproductor.pitch(data)
+            else:
+                # Creería que no se esta usando, porque estaba mal escrita y
+                # no generaba error, se deja por las dudas.
+                self.reproductor.pitch(0)
+        except Exception as e:
+            self.expErrSs.writeexception(e)
+        #En un futuro se puede pedir confirmación al método pitch y devolverla.
+    #Aquí se genera el archivo de salida con el sonido, por el momento no depende del tempo seleccionado.
+
+    def make_bisound(self, data, vol_left=1, vol_right=1, x=0):
+        try:
+            if not (x == -1):
+                #Aquí se llama al método que genera y envía la nota a fluidsynth
+                self.reproductor.pitch_bisound(data, vol_left, vol_right)
             else:
                 # Creería que no se esta usando, porque estaba mal escrita y
                 # no generaba error, se deja por las dudas.
