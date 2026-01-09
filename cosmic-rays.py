@@ -263,11 +263,11 @@ def generate_braille_plot(dataframe, name='plot-braille.png', brailleweight=500)
     xfinal_text = numinbraille(dataframe.loc[x_pos_max,0])
     
     axbraille.set_xticks([dataframe.loc[x_pos_min,0],dataframe.loc[x_pos_middle,0],dataframe.loc[x_pos_max,0]], 
-                        [xinicio_text,xmedio_text,xfinal_text], 
+                        [' ',' ',' '], 
                         fontsize=24,
                         fontfamily='serif',
-                        fontweight=brailleweight,
-                        position=(0,-0.04))
+                        fontweight=brailleweight)#,
+                        #position=(0,-0.04))
 
     # 3 valores de eje y en braille
     # Found min, middle, max possitions and values
@@ -283,19 +283,55 @@ def generate_braille_plot(dataframe, name='plot-braille.png', brailleweight=500)
     y_pos_middle_text = numinbraille(dataframe.loc[y_pos_middle,1])
     y_pos_max_text = numinbraille(dataframe.loc[y_pos_max,1])
     axbraille.set_yticks([dataframe.loc[y_pos_min,1],dataframe.loc[y_pos_middle,1],dataframe.loc[y_pos_max,1]], 
-                        [y_pos_min_text,y_pos_middle_text,y_pos_max_text], 
+                        [' ',' ',' '], 
                         fontsize=24,
                         fontfamily='serif',
                         fontweight=brailleweight)
 
-    axbraille.set_title(' ')
-    x = brl.translate('x')
+    title = [['000101']]        #Mayus
+    title[0].append('111100')   #p
+    title[0].append('010100')   #i
+    title[0].append('100010')   #e
+    title[0].append('111010')   #r
+    title[0].append('111010')   #r
+    title[0].append('100010')   #e
+    title[0].append('000000')   #
+    title[0].append('000101')   #Mayus
+    title[0].append('100000')   #a
+    title[0].append('101001')   #u
+    title[0].append('110110')   #g
+    title[0].append('100010')   #e
+    title[0].append('111010')   #r
+    title[0].append('000000')   #
+    title[0].append('001111')   #Num
+    title[0].append('110000')   #2
+    title[0].append('010110')   #0
+    title[0].append('100000')   #1
+    title[0].append('110110')   #7
+    title = brl.toUnicodeSymbols(title, flatten=True)
+    axbraille.set_title(title, fontsize=24, fontfamily='serif', fontweight=brailleweight)
+    #x = brl.translate('x')
+    x = [['000101']]        #Mayus
+    x[0].append('011110')   #t
+    x[0].append('010100')   #i
+    x[0].append('100010')   #e
+    x[0].append('101100')   #m
+    x[0].append('111100')   #p
+    x[0].append('101010')   #o
     x = brl.toUnicodeSymbols(x, flatten=True)
-    axbraille.set_xlabel(x, fontsize=24, fontfamily='serif', fontweight=brailleweight, labelpad=15)
-    y = brl.translate('y')
+    axbraille.set_xlabel(x, fontsize=24, fontfamily='serif', fontweight=brailleweight, labelpad=0)
+    #y = brl.translate('y')
+    y = [['000101']]        #Mayus
+    y[0].append('100010')   #e
+    y[0].append('101110')   #n
+    y[0].append('100010')   #e
+    y[0].append('111010')   #r
+    y[0].append('110110')   #g
+    y[0].append('001100')   #í
+    y[0].append('100000')   #a
     y = brl.toUnicodeSymbols(y, flatten=True)
-    axbraille.set_ylabel(y, fontsize=24, fontfamily='serif', fontweight=brailleweight, labelpad=10, rotation=0)
-    axbraille.plot(dataframe.loc[:, 0], dataframe.loc[:, 1], '#2874a6', linewidth=3)
+    axbraille.set_ylabel(y, fontsize=24, fontfamily='serif', fontweight=brailleweight, labelpad=0, rotation=90)
+    axbraille.plot(dataframe.loc[:, 0], dataframe.loc[:, 1], '#2874a6', marker='o', linestyle='None', linewidth=3)
     # Ejes de coordenadas
     if dataframe.loc[:, 0].min() < 0 and dataframe.loc[:, 0].max() > 0:
         axbraille.axvline(x=0, color='k', linewidth=1)
@@ -329,7 +365,7 @@ ax.set_ylabel('y', rotation=0)
 # Separate the name file from the path to set the plot title
 filename = os.path.basename(path)
 # Plot 
-ax.plot(data_float.loc[:, 0], data_float.loc[:, 1], '#2874a6', linewidth=3)
+ax.plot(data_float.loc[:, 0], data_float.loc[:, 1], '#2874a6', marker='o', linestyle='None', linewidth=3)
 # Ejes de coordenadas
 if data_float.loc[:, 0].min() < 0:
     ax.axvline(x=0, color='k', linewidth=1)
@@ -339,8 +375,6 @@ if data_float.loc[:, 1].min() < 0:
 plot_path = path[:-4] + 'plot.png'
 fig.savefig(plot_path)
 plt.close()
-
-print(type(data_float))
 
 generate_braille_plot(data_float, 'plot-braille1.png')
 
@@ -354,32 +388,3 @@ path_mp3 = path[:-4] + '_sound.mp3'
 x_pos_min = 1
 _simplesound.save_sound(wav_name, data_float.loc[:,0], y1, init=x_pos_min) 
 wav_to_mp3(wav_name, path_mp3)
-
-# Generate sound with Gaussian noise
-#y1_noise = y1 + generate_gaussian_noise(len(y1), noise_snr) 
-
-# Generate the dataFrame to plot the noise with braille
-#y1_noise.to_frame()
-#data_float_noise = data_float.loc[:, 0].to_frame()
-#data_float_noise = data_float_noise.join(y1_noise.to_frame())
-#generate_braille_plot(data_float_noise, 'plot-braille2.png')
-
-# Save sound
-#wav_name_noise = path[:-4] + '_noise.wav'
-#path_mp3_noise = path[:-4] + '_noise.mp3'
-#_simplesound.save_sound(wav_name_noise, data_float.loc[:, 0], y1_noise, init=x_pos_min)
-#wav_to_mp3(wav_name_noise, path_mp3_noise)
-
-# Generate image of sound with noise
-#fig_noise = plt.figure()
-#ax_noise = plt.axes()
-#ax_noise.plot(data_float.loc[:, 0], y1_noise, '#f39c12', linewidth=3)
-#ax_noise.set_xlabel('x')
-#ax_noise.set_ylabel('y')
-#if data_float.loc[:, 0].min() < 0:
-#    ax_noise.axvline(x=0, color='k', linewidth=1)
-#if y1_noise.min() < 0:
-#    ax_noise.axhline(y=0, color='k', linewidth=1)
-#image_name = path[:-4] + 'plot_noise.png'
-#fig_noise.savefig(image_name)
-#plt.close()
